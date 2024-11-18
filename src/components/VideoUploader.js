@@ -1,19 +1,37 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
+import { useDropzone } from 'react-dropzone';
 
 export default function VideoUploader() {
   const [frames, setFrames] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
 
-  const handleFileChange = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
+  const onDrop = useCallback((acceptedFiles) => {
+    const file = acceptedFiles[0];
+    if (file) {
+      setSelectedFile(file);
+    }
+  }, []);
 
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'video/*': ['.mp4', '.mov', '.avi']
+    },
+    maxFiles: 1
+  });
+
+  const handleProcess = async () => {
+    if (!selectedFile) return;
+    
     setLoading(true);
     try {
-      // File handling logic will go here
-      console.log('File selected:', file);
+      // API call will go here
+      console.log('Processing file:', selectedFile);
+      // Temporary timeout to simulate processing
+      await new Promise(resolve => setTimeout(resolve, 2000));
     } catch (error) {
       console.error('Error:', error);
     } finally {
@@ -23,20 +41,20 @@ export default function VideoUploader() {
 
   return (
     <div className="space-y-8">
-      <div className="border-2 border-dashed rounded-lg p-8 text-center">
-        <input
-          type="file"
-          accept="video/*"
-          onChange={handleFileChange}
-          className="hidden"
-          id="video-upload"
-        />
-        <label 
-          htmlFor="video-upload"
-          className="cursor-pointer block p-4 hover:bg-gray-50"
-        >
-          Click to upload or drag and drop a video file
-        </label>
+      <div {...getRootProps()}>
+        <input {...getInputProps()} />
+        {isDragActive ? (
+          <p>Drop the video file here...</p>
+        ) : (
+          <div className="border-2 border-dashed rounded-lg p-8 text-center">
+            <label 
+              htmlFor="video-upload"
+              className="cursor-pointer block p-4 hover:bg-gray-50"
+            >
+              Click to upload or drag and drop a video file
+            </label>
+          </div>
+        )}
       </div>
 
       {loading && (
