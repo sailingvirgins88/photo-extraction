@@ -1,6 +1,6 @@
 'use client';
 
-import VideoUploader from '@/components/VideoUploader';
+import VideoUploader from '../components/VideoUploader';
 
 export default function Home() {
   return (
